@@ -7,6 +7,7 @@ import ru.practicum.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
 /**
  * Сервис для работы со статистикой посещений эндпоинтов.
  * <p>
@@ -24,6 +25,7 @@ public interface StatsService {
      * @throws DataAccessException если произошла ошибка сохранения в БД
      */
     void addHit(EndpointHitDto endpointHitDto);
+
     /**
      * Получает статистику по посещениям с заданными параметрами фильтрации.
      *

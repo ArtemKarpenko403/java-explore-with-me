@@ -25,6 +25,7 @@ public final class EndpointHitMapper {
                 .uri(endpointHitDto.getUri())
                 .build();
     }
+
     /**
      * Преобразует DTO запроса в сущность для сохранения в базе данных.
      *
