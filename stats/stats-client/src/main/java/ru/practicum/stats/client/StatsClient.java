@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+
 /**
  * Клиент для взаимодействия со службой статистики.
  * <p>
@@ -23,6 +24,7 @@ public interface StatsClient {
      * @throws jakarta.validation.ConstraintViolationException    если данные запроса некорректны
      */
     ResponseEntity<Void> addHit(@NotBlank String uri, @NotBlank String ip);
+
     /**
      * Получает статистику по посещениям с заданными параметрами фильтрации.
      *
