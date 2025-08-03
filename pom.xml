@@ -9,23 +9,57 @@
 		<version>3.3.2</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-
+	<!-- Управление версиями, модулями и общими настройками -->
 	<name>Explore With Me</name>
 	<modules>
-		<module>ewm</module>
 		<module>stats</module>
+		<module>ewm-service</module>
 	</modules>
-
+	<!-- Dependency Management для Lombok, Jackson, PostgreSQL -->
 	<groupId>ru.practicum</groupId>
-	<artifactId>explore-with-me</artifactId>
+	<artifactId>java-explore-with-me</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
 		<java.version>21</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<lombok.version>1.18.36</lombok.version>
+		<jackson.version>2.18.2</jackson.version>
+		<postgresql.version>42.7.4</postgresql.version>
 	</properties>
 
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.projectlombok</groupId>
+				<artifactId>lombok</artifactId>
+				<version>${lombok.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-databind</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-core</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.core</groupId>
+				<artifactId>jackson-annotations</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.postgresql</groupId>
+				<artifactId>postgresql</artifactId>
+				<version>${postgresql.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<!-- Настройки плагинов (Checkstyle, SpotBugs, JaCoCo) -->
 	<build>
 		<pluginManagement>
 			<plugins>
