@@ -1,19 +1,17 @@
 package ru.practicum.stats.client;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.stats.dto.EndpointHitDto;
-import ru.practicum.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Реализация клиента для взаимодействия с сервисом статистики через REST API.
@@ -25,15 +23,13 @@ import java.util.Map;
  * @see RestTemplate
  */
 @Slf4j
-@Service
+@RequiredArgsConstructor
+@Component
 public class StatsClientImpl implements StatsClient {
-    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     private final RestTemplate rest;
-
-    @Autowired
-    public StatsClientImpl(RestTemplate rest) {
-        this.rest = rest;
-    }
+    @Value("${spring.application.name}")
+    private String applicationName;
 
     /**
      * {@inheritDoc}
@@ -45,16 +41,19 @@ public class StatsClientImpl implements StatsClient {
      * @throws jakarta.validation.ConstraintViolationException    если данные запроса некорректны
      */
     @Override
-    public void addHit(EndpointHitDto endpointHitDto) {
-        log.debug("Отправка информации о посещении: {}", endpointHitDto);
-        try {
-            rest.postForObject("/hit", endpointHitDto, Void.class);
-            log.info("Информация о посещении успешно отправлена: {} {}",
-                    endpointHitDto.getApp(), endpointHitDto.getUri());
-        } catch (Exception e) {
-            log.error("Ошибка при отправке информации о посещении: {}", endpointHitDto, e);
-            throw e;
-        }
+    public ResponseEntity<Void> addHit(String uri, String ip) {
+        EndpointHitDto hit = EndpointHitDto.builder()
+                .app(applicationName)
+                .timestamp(LocalDateTime.now())
+                .uri(uri)
+                .ip(ip)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<EndpointHitDto> request = new HttpEntity<>(hit, headers);
+
+        return rest.exchange("/hit", HttpMethod.POST, request, Void.class);
     }
 
     /**
@@ -71,28 +70,20 @@ public class StatsClientImpl implements StatsClient {
      * @throws org.springframework.web.client.RestClientException при ошибках HTTP запроса
      */
     @Override
-    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        log.debug("Запрос статистики: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
+    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, Boolean unique) {
 
-        try {
-            Map<String, Object> uriVariables = Map.of(
-                    "start", start.format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
-                    "end", end.format(DateTimeFormatter.ofPattern(DATE_FORMAT)),
-                    "uris", uris != null ? uris : List.of(),
-                    "unique", unique
-            );
+        UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/stats")
+                .queryParam("start", start)
+                .queryParam("end", end);
 
-            ViewStatsDto[] response = rest.getForObject("/stats", ViewStatsDto[].class, uriVariables);
-
-            List<ViewStatsDto> result = response != null ? Arrays.asList(response) : List.of();
-            log.info("Получено {} записей статистики", result.size());
-            return result;
-
-        } catch (Exception e) {
-            log.error("Ошибка при получении статистики: start={}, end={}, uris={}, unique={}",
-                    start, end, uris, unique, e);
-            throw e;
+        if (uris != null && !uris.isEmpty()) {
+            builder.queryParam("uris", String.join(",", uris));
         }
-    }
 
+        if (unique != null) {
+            builder.queryParam("unique", unique);
+        }
+
+        return rest.exchange(builder.toUriString(), HttpMethod.GET, null, Object.class);
+    }
 }

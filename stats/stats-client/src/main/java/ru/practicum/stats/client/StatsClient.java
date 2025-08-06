@@ -1,10 +1,10 @@
 package ru.practicum.stats.client;
 
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.http.ResponseEntity;
 
-import ru.practicum.stats.dto.EndpointHitDto;
-import ru.practicum.stats.dto.ViewStatsDto;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -16,7 +16,6 @@ import java.util.List;
  * Используется другими микросервисами для сбора и анализа статистики посещений.
  */
 public interface StatsClient {
-
     /**
      * Отправляет информацию о запросе к эндпоинту в службу статистики.
      *
@@ -24,7 +23,7 @@ public interface StatsClient {
      * @throws org.springframework.web.client.RestClientException при ошибках HTTP запроса
      * @throws jakarta.validation.ConstraintViolationException    если данные запроса некорректны
      */
-    void addHit(EndpointHitDto endpointHitDto);
+    ResponseEntity<Void> addHit(@NotBlank String uri, @NotBlank String ip);
 
     /**
      * Получает статистику по посещениям с заданными параметрами фильтрации.
@@ -36,5 +35,7 @@ public interface StatsClient {
      * @return список статистики по посещениям, отсортированный по количеству просмотров по убыванию
      * @throws org.springframework.web.client.RestClientException при ошибках HTTP запроса
      */
-    List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique);
+    ResponseEntity<Object> getStats(@NotNull String start, @NotNull String end,
+                                    @Nullable List<String> uris,
+                                    @Nullable Boolean unique);
 }
