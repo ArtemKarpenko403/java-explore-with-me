@@ -1,7 +1,7 @@
 package ru.practicum.ewm.category.mapper;
 
-import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.model.Category;
+import ru.practicum.ewm.category.dto.CategoryDto;
 
 /**
  * Mapper category <--> DTO

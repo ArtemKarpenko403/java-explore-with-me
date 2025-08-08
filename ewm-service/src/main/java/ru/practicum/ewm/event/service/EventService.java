@@ -2,6 +2,7 @@ package ru.practicum.ewm.event.service;
 
 import ru.practicum.ewm.event.dto.*;
 
+
 import java.util.List;
 
 public interface EventService {
