@@ -3,15 +3,15 @@ package ru.practicum.ewm.category.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.ewm.exceptions.ConflictException;
+import ru.practicum.ewm.exceptions.NotFoundException;
+import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.dto.NewCategoryDto;
 import ru.practicum.ewm.category.dto.UpdateCategoryDto;
 import ru.practicum.ewm.category.mapper.CategoryMapper;
-import ru.practicum.ewm.category.model.Category;
 import ru.practicum.ewm.category.storage.CategoryRepository;
 import ru.practicum.ewm.event.storage.EventRepository;
-import ru.practicum.ewm.exceptions.ConflictException;
-import ru.practicum.ewm.exceptions.NotFoundException;
 
 import java.util.List;
 

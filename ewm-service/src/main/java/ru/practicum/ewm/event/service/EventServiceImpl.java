@@ -11,27 +11,31 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.ewm.category.model.Category;
-import ru.practicum.ewm.category.storage.CategoryRepository;
+import ru.practicum.ewm.comment.model.Comment;
+import ru.practicum.ewm.comment.storage.CommentRepository;
 import ru.practicum.ewm.event.dto.*;
-import ru.practicum.ewm.event.enums.EventState;
-import ru.practicum.ewm.event.enums.SortOption;
-import ru.practicum.ewm.event.mapper.EventMapper;
-import ru.practicum.ewm.event.model.Event;
-import ru.practicum.ewm.event.storage.EventFilterBuilder;
-import ru.practicum.ewm.event.storage.EventRepository;
 import ru.practicum.ewm.exceptions.ConflictException;
 import ru.practicum.ewm.exceptions.NotFoundException;
+import ru.practicum.ewm.category.model.Category;
+import ru.practicum.ewm.event.model.Event;
 import ru.practicum.ewm.user.model.User;
+import ru.practicum.ewm.category.storage.CategoryRepository;
+import ru.practicum.ewm.event.storage.EventRepository;
 import ru.practicum.ewm.user.storage.UserRepository;
-import ru.practicum.stats.client.StatsClient;
+import ru.practicum.ewm.event.storage.EventFilterBuilder;
 import ru.practicum.stats.dto.ViewStatsDto;
+import ru.practicum.ewm.event.enums.EventState;
+
+import ru.practicum.ewm.event.enums.SortOption;
+import ru.practicum.ewm.event.mapper.EventMapper;
+import ru.practicum.stats.client.StatsClient;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Сервис для работы с Event
@@ -44,6 +48,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final EventFilterBuilder filterBuilder;
     private final StatsClient statsClient;
+    private final CommentRepository commentRepository;
 
     // Получить событие по id (public)
     @Override
@@ -91,12 +96,16 @@ public class EventServiceImpl implements EventService {
         Page<Event> page = repository.findAll(predicate, pageable);
         // количество просмотров для каждого события
         Map<Long, Long> eventsViews = getViewsForEvents(page.getContent());
+        // Комментарии
+        Map<Long, Long> eventsComments = getCommentsForEvents(page.getContent());
+
 
         return page.getContent()
                 .stream()
                 .map(EventMapper::toShortDto)
                 .map(dto -> {
                             dto.setViews(eventsViews.get(dto.getId())); // установить просмотры
+                            dto.setComments(eventsComments.get(dto.getId())); // установить комменты
                             return dto;
                         }
                 )
@@ -404,5 +413,20 @@ public class EventServiceImpl implements EventService {
         }
 
         return idsToViewsMap;
+    }
+
+    private Map<Long, Long> getCommentsForEvents(List<Event> events) {
+
+        List<Comment> comments = commentRepository.findByEventIdInAndIsModeratedTrue(events.stream().map(Event::getId).toList());
+
+        Map<Long, Long> idsToCommentsMap = new HashMap<>();
+
+        for (Event event : events) {
+            idsToCommentsMap.put(event.getId(), comments
+                    .stream().filter(comment -> Objects.equals(comment.getEvent()
+                            .getId(), event.getId())).count());
+        }
+
+        return idsToCommentsMap;
     }
 }

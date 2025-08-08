@@ -7,8 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.ewm.category.model.Category;
-import ru.practicum.ewm.event.enums.EventState;
 import ru.practicum.ewm.location.model.Location;
+import ru.practicum.ewm.event.enums.EventState;
 import ru.practicum.ewm.user.model.User;
 
 import java.time.LocalDateTime;

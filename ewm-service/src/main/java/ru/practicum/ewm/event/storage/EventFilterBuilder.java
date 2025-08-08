@@ -2,11 +2,11 @@ package ru.practicum.ewm.event.storage;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
 import org.springframework.stereotype.Component;
+import ru.practicum.ewm.event.model.QEvent;
+import ru.practicum.ewm.exceptions.DataValidationException;
 import ru.practicum.ewm.event.dto.AdminEventFilterDto;
 import ru.practicum.ewm.event.dto.EventFilterDto;
 import ru.practicum.ewm.event.enums.EventState;
-import ru.practicum.ewm.event.model.QEvent;
-import ru.practicum.ewm.exceptions.DataValidationException;
 
 import java.time.LocalDateTime;
 
